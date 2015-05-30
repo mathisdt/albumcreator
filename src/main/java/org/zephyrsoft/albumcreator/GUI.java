@@ -269,7 +269,7 @@ public class GUI extends JFrame implements LogTarget {
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				int row = sourceTable.rowAtPoint(e.getPoint());
-				if (e.getClickCount() == 2 && row >= 0) {
+				if (e.getClickCount() % 2 == 0 && row >= 0) {
 					// double click on an existing row
 					SourceFile sourceFile = sourceTableModel.get(row);
 					if (targetTableAlreadyContainsSourceFile(sourceFile)) {
@@ -289,7 +289,7 @@ public class GUI extends JFrame implements LogTarget {
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				int row = targetTable.rowAtPoint(e.getPoint());
-				if (e.getClickCount() > 1 && row >= 0) {
+				if (e.getClickCount() % 2 == 0 && row >= 0) {
 					// double click on an existing row
 					targetTableModel.remove(row);
 					targetTable.revalidate();
