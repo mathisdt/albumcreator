@@ -1,9 +1,6 @@
+# Album Creator
 
-Album Creator
-=============
-
-What's the purpose?
-~~~~~~~~~~~~~~~~~~~
+## What's the purpose?
 
 This utility allows to create compilations of music tracks.
 Maybe you used to put all of your music files into one single
@@ -18,8 +15,7 @@ Each track will get a prefix with the track number, but retain the file
 name it had originally. If a file already exists, it will not be overwritten
 but the program will stop right there.
 
-How to do it?
-~~~~~~~~~~~~~
+## How to do it?
 
 There's not much to do wrong - first select source and target directory using
 the buttons at the top. Then double-click on tracks on the left (source)
@@ -31,10 +27,9 @@ directly and click the appropriate button at the bottom.
 If you want to remove a track from the right list, double-click on it, and
 the other tracks will be renumbered accordingly.
 
-What do I have to provide?
-~~~~~~~~~~~~~~~~~~~~~~~~~~
+## What do I have to provide?
 
 * some music files, obviously - currently only MP3 is supported but this is
-  easy to change in MusicFilePredicate
+  easy to change in ``MusicFilePredicate``
 * the Java Runtime Environment (JRE) in version 8 or newer -
-  get it here: http://java.com/
+  [get it here](http://java.com/)
