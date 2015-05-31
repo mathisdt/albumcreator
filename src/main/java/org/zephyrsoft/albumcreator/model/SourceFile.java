@@ -1,5 +1,7 @@
 package org.zephyrsoft.albumcreator.model;
 
+import static org.zephyrsoft.albumcreator.MusicFilePredicate.removeMusicFileExtension;
+
 import java.nio.file.Path;
 
 public class SourceFile {
@@ -12,8 +14,8 @@ public class SourceFile {
 		
 		// parse artist and title
 		String fileName = path.getFileName().toString();
-		artist = fileName.replaceAll("\\s++-\\s.*$", "").replaceAll("\\.[^\\.]+$", "");
-		title = fileName.replaceAll("^.*\\s-\\s++", "").replaceAll("\\.[^\\.]+$", "");
+		artist = removeMusicFileExtension(fileName.replaceAll("\\s++-\\s.*$", ""));
+		title = removeMusicFileExtension(fileName.replaceAll("^.*\\s-\\s++", ""));
 	}
 	
 	public Path getPath() {

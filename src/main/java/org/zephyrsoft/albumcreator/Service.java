@@ -79,6 +79,20 @@ public class Service {
 		return success;
 	}
 	
+	public boolean createNewDirectory(Path path, LogTarget logTarget) {
+		try {
+			Files.createDirectories(path);
+			return true;
+		} catch (FileAlreadyExistsException e) {
+			logTarget.log("ERROR: can't create directory " + path.toString()
+				+ " because it already exists but as a file");
+			return false;
+		} catch (IOException e) {
+			logTarget.log("ERROR: can't create directory " + path.toString() + ": " + e.getMessage());
+			return false;
+		}
+	}
+	
 	private Path absoluteSourcePath(TargetFile targetFile) {
 		return targetFile.getSourceFile().getPath().toAbsolutePath();
 	}

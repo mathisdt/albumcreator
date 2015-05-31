@@ -29,7 +29,7 @@ the other tracks will be renumbered accordingly.
 
 ## What do I have to provide?
 
-* some music files, obviously - currently only MP3 is supported but this is
-  easy to change in ``MusicFilePredicate``
+* some music files, obviously - currently only MP3 and FLAC are supported
+  but this is easy to change in ``MusicFilePredicate``
 * the Java Runtime Environment (JRE) in version 8 or newer -
   [get it here](http://java.com/)

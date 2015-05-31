@@ -73,6 +73,7 @@ public class GUI extends JFrame implements LogTarget {
 	private JTable targetTable;
 	private JPanel buttonPanel;
 	private JButton clearTargetListButton;
+	private JButton newTargetButton;
 	
 	public GUI(Service service) {
 		this.service = service;
@@ -91,7 +92,7 @@ public class GUI extends JFrame implements LogTarget {
 		gbc_globalPanel.gridy = 0;
 		getContentPane().add(globalPanel, gbc_globalPanel);
 		GridBagLayout gbl_globalPanel = new GridBagLayout();
-		gbl_globalPanel.columnWeights = new double[] { 1.0, 0.0, 1.0, 0.0 };
+		gbl_globalPanel.columnWeights = new double[] { 1.0, 0.0, 1.0, 0.0, 0.0 };
 		gbl_globalPanel.rowWeights = new double[] { 0.0, 5.0, 0.0, 1.0 };
 		globalPanel.setLayout(gbl_globalPanel);
 		
@@ -133,16 +134,29 @@ public class GUI extends JFrame implements LogTarget {
 				selectTarget();
 			}
 		});
+		
+		newTargetButton = new JButton("New");
+		newTargetButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				selectNewTarget();
+			}
+		});
+		GridBagConstraints gbc_newTargetButton = new GridBagConstraints();
+		gbc_newTargetButton.insets = new Insets(0, 0, 5, 5);
+		gbc_newTargetButton.gridx = 3;
+		gbc_newTargetButton.gridy = 0;
+		globalPanel.add(newTargetButton, gbc_newTargetButton);
 		GridBagConstraints gbc_targetDirButton = new GridBagConstraints();
 		gbc_targetDirButton.insets = new Insets(0, 0, 5, 0);
-		gbc_targetDirButton.gridx = 3;
+		gbc_targetDirButton.gridx = 4;
 		gbc_targetDirButton.gridy = 0;
 		globalPanel.add(targetDirButton, gbc_targetDirButton);
 		
 		splitPane = new JSplitPane();
 		splitPane.setResizeWeight(0.5);
 		GridBagConstraints gbc_splitPane = new GridBagConstraints();
-		gbc_splitPane.gridwidth = 4;
+		gbc_splitPane.gridwidth = 5;
 		gbc_splitPane.insets = new Insets(0, 0, 5, 0);
 		gbc_splitPane.fill = GridBagConstraints.BOTH;
 		gbc_splitPane.gridx = 0;
@@ -180,8 +194,8 @@ public class GUI extends JFrame implements LogTarget {
 		buttonPanel = new JPanel();
 		GridBagConstraints gbc_buttonPanel = new GridBagConstraints();
 		gbc_buttonPanel.anchor = GridBagConstraints.EAST;
-		gbc_buttonPanel.gridwidth = 4;
-		gbc_buttonPanel.insets = new Insets(0, 0, 5, 5);
+		gbc_buttonPanel.gridwidth = 5;
+		gbc_buttonPanel.insets = new Insets(0, 0, 5, 0);
 		gbc_buttonPanel.fill = GridBagConstraints.VERTICAL;
 		gbc_buttonPanel.gridx = 0;
 		gbc_buttonPanel.gridy = 2;
@@ -235,7 +249,7 @@ public class GUI extends JFrame implements LogTarget {
 		
 		logScrollPane = new JScrollPane();
 		GridBagConstraints gbc_logScrollPane = new GridBagConstraints();
-		gbc_logScrollPane.gridwidth = 4;
+		gbc_logScrollPane.gridwidth = 5;
 		gbc_logScrollPane.fill = GridBagConstraints.BOTH;
 		gbc_logScrollPane.gridx = 0;
 		gbc_logScrollPane.gridy = 3;
@@ -322,7 +336,19 @@ public class GUI extends JFrame implements LogTarget {
 		
 		try {
 			List<SourceFile> sourceFiles =
-				Files.find(sourcePath, 1, new MusicFilePredicate(), FileVisitOption.FOLLOW_LINKS).sorted()
+				Files.find(sourcePath, 1, new MusicFilePredicate(), FileVisitOption.FOLLOW_LINKS)
+					.sorted((path1, path2) -> {
+						int parentComparison = path1.toAbsolutePath().getParent()
+							.compareTo(path2.toAbsolutePath().getParent());
+						if (parentComparison != 0) {
+							// directories are already different
+							return parentComparison;
+						} else {
+							// compare file name case-insensitive
+							return path1.toAbsolutePath().getFileName().toString().toLowerCase()
+								.compareTo(path2.toAbsolutePath().getFileName().toString().toLowerCase());
+						}
+					})
 					.map(path -> new SourceFile(path))
 					.collect(Collectors.toList());
 			sourceTableModel.addAll(sourceFiles);
@@ -341,6 +367,25 @@ public class GUI extends JFrame implements LogTarget {
 	
 	private void selectTarget() {
 		selectDirectory(targetDirField, "Select Target Directory", "target directory", true);
+	}
+	
+	private void selectNewTarget() {
+		Path currentPath = Paths.get(targetDirField.getText());
+		Path parentPath = currentPath.getParent().toAbsolutePath();
+		if (Files.isDirectory(parentPath) && Files.isWritable(parentPath)) {
+			String subDirectoryToCreate = JOptionPane.showInputDialog(this, "Create a new subdirectory below \""
+				+ parentPath.toString() + "\" with the name:",
+				currentPath.getFileName().toString().replaceAll("/", ""));
+			if (subDirectoryToCreate != null && !subDirectoryToCreate.trim().isEmpty()) {
+				Path pathToCreate = parentPath.resolve(Paths.get(subDirectoryToCreate));
+				boolean success = service.createNewDirectory(pathToCreate, this);
+				if (success) {
+					targetDirField.setText(pathToCreate.toAbsolutePath().toString());
+				}
+			}
+		} else {
+			log("ERROR: parent directory " + parentPath.toString() + " is not writable");
+		}
 	}
 	
 	private boolean selectDirectory(JTextField field, String windowTitle, String logTitle, boolean checkWriteAccess) {
