@@ -7,6 +7,8 @@ import java.awt.Insets;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
@@ -17,6 +19,9 @@ import java.nio.file.FileVisitOption;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -37,12 +42,11 @@ import javax.swing.table.TableCellRenderer;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.zephyrsoft.albumcreator.model.Settings;
 import org.zephyrsoft.albumcreator.model.SourceFile;
 import org.zephyrsoft.albumcreator.model.SourceTableModel;
 import org.zephyrsoft.albumcreator.model.TargetFile;
 import org.zephyrsoft.albumcreator.model.TargetTableModel;
-
-import com.google.common.base.StandardSystemProperty;
 
 /**
  * The user interface.
@@ -55,6 +59,10 @@ public class GUI extends JFrame implements LogTarget {
 	private static final long serialVersionUID = -2316986129445458114L;
 	
 	private Service service;
+	private Settings settings;
+	
+	private LocalDateTime filterTimestamp;
+	private String filterString;
 	
 	private JScrollPane logScrollPane;
 	private JTextArea log;
@@ -266,12 +274,15 @@ public class GUI extends JFrame implements LogTarget {
 		addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowClosing(WindowEvent e) {
+				// save settings
+				service.saveSettings(settings);
 				// exit
 				dispose();
 				System.exit(0);
 			}
 		});
 		
+		settings = service.loadSettings();
 		initComponents();
 	}
 	
@@ -314,8 +325,33 @@ public class GUI extends JFrame implements LogTarget {
 			}
 		});
 		
-		sourceDirField.setText(System.getProperty(StandardSystemProperty.USER_HOME.key()));
-		targetDirField.setText(System.getProperty(StandardSystemProperty.JAVA_IO_TMPDIR.key()));
+		sourceTable.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyTyped(KeyEvent e) {
+				LocalDateTime reference = LocalDateTime.now().minus(Duration.of(500, ChronoUnit.MILLIS));
+				if (filterTimestamp == null || filterTimestamp.isBefore(reference)) {
+					// start new filter
+					filterString = String.valueOf(e.getKeyChar()).toLowerCase();
+				} else {
+					// append to filter
+					filterString += String.valueOf(e.getKeyChar()).toLowerCase();
+				}
+				LOG.debug("searching for {}", filterString);
+				filterTimestamp = LocalDateTime.now();
+				List<SourceFile> sourceFiles = sourceTableModel.getFiles();
+				for (int i = 0; i < sourceFiles.size(); i++) {
+					SourceFile file = sourceFiles.get(i);
+					if (file.getArtist().toLowerCase().startsWith(filterString)) {
+						sourceTable.getSelectionModel().setSelectionInterval(i, i);
+						sourceTable.scrollRectToVisible(sourceTable.getCellRect(i, 0, true));
+						break;
+					}
+				}
+			}
+		});
+		
+		sourceDirField.setText(settings.getSourceDirectory());
+		targetDirField.setText(settings.getTargetDirectory());
 		sourceTableModel = new SourceTableModel();
 		sourceTable.setModel(sourceTableModel);
 		targetTableModel = new TargetTableModel();
@@ -342,13 +378,13 @@ public class GUI extends JFrame implements LogTarget {
 							.compareTo(path2.toAbsolutePath().getParent());
 						if (parentComparison != 0) {
 							// directories are already different
-							return parentComparison;
-						} else {
-							// compare file name case-insensitive
-							return path1.toAbsolutePath().getFileName().toString().toLowerCase()
-								.compareTo(path2.toAbsolutePath().getFileName().toString().toLowerCase());
-						}
-					})
+						return parentComparison;
+					} else {
+						// compare file name case-insensitive
+						return path1.toAbsolutePath().getFileName().toString().toLowerCase()
+							.compareTo(path2.toAbsolutePath().getFileName().toString().toLowerCase());
+					}
+				}	)
 					.map(path -> new SourceFile(path))
 					.collect(Collectors.toList());
 			sourceTableModel.addAll(sourceFiles);
@@ -361,12 +397,16 @@ public class GUI extends JFrame implements LogTarget {
 	private void selectSource() {
 		boolean successful = selectDirectory(sourceDirField, "Select Source Directory", "source directory", false);
 		if (successful) {
+			settings.setSourceDirectory(sourceDirField.getText());
 			readSourceFiles();
 		}
 	}
 	
 	private void selectTarget() {
-		selectDirectory(targetDirField, "Select Target Directory", "target directory", true);
+		boolean successful = selectDirectory(targetDirField, "Select Target Directory", "target directory", true);
+		if (successful) {
+			settings.setTargetDirectory(targetDirField.getText());
+		}
 	}
 	
 	private void selectNewTarget() {
@@ -380,7 +420,9 @@ public class GUI extends JFrame implements LogTarget {
 				Path pathToCreate = parentPath.resolve(Paths.get(subDirectoryToCreate));
 				boolean success = service.createNewDirectory(pathToCreate, this);
 				if (success) {
-					targetDirField.setText(pathToCreate.toAbsolutePath().toString());
+					String newTargetDir = pathToCreate.toAbsolutePath().toString();
+					targetDirField.setText(newTargetDir);
+					settings.setTargetDirectory(newTargetDir);
 				}
 			}
 		} else {

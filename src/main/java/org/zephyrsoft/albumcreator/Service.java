@@ -9,11 +9,15 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.text.NumberFormat;
 import java.util.List;
+import java.util.Properties;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.zephyrsoft.albumcreator.model.Settings;
 import org.zephyrsoft.albumcreator.model.TargetFile;
+
+import com.google.common.base.StandardSystemProperty;
 
 /**
  * Performs the work.
@@ -23,6 +27,11 @@ import org.zephyrsoft.albumcreator.model.TargetFile;
 public class Service {
 	
 	private static final Logger LOG = LoggerFactory.getLogger(Service.class);
+	
+	private static final String SETTINGS_FILE_NAME = StandardSystemProperty.USER_HOME.value()
+		+ StandardSystemProperty.FILE_SEPARATOR.value() + ".albumcreator";
+	private static final String SOURCE_DIRECTORY_PROPERTY_NAME = "sourceDirectory";
+	private static final String TARGET_DIRECTORY_PROPERTY_NAME = "targetDirectory";
 	
 	private final NumberFormat numberFormat;
 	
@@ -103,4 +112,37 @@ public class Service {
 		return targetDir.resolve(newFileName).toAbsolutePath();
 	}
 	
+	public Settings loadSettings() {
+		Path settingsFile = Paths.get(SETTINGS_FILE_NAME);
+		Settings ret = new Settings();
+		if (Files.isRegularFile(settingsFile) && Files.isReadable(settingsFile)) {
+			// read properties
+			try {
+				Properties properties = new Properties();
+				properties.load(Files.newBufferedReader(settingsFile));
+				if (properties.containsKey(SOURCE_DIRECTORY_PROPERTY_NAME)) {
+					ret.setSourceDirectory(properties.getProperty(SOURCE_DIRECTORY_PROPERTY_NAME));
+				}
+				if (properties.containsKey(TARGET_DIRECTORY_PROPERTY_NAME)) {
+					ret.setTargetDirectory(properties.getProperty(TARGET_DIRECTORY_PROPERTY_NAME));
+				}
+			} catch (IOException e) {
+				LOG.warn("can't read settings file", e);
+			}
+		}
+		return ret;
+	}
+	
+	public void saveSettings(Settings settings) {
+		Path settingsFile = Paths.get(SETTINGS_FILE_NAME);
+		// read properties
+		try {
+			Properties properties = new Properties();
+			properties.put(SOURCE_DIRECTORY_PROPERTY_NAME, settings.getSourceDirectory());
+			properties.put(TARGET_DIRECTORY_PROPERTY_NAME, settings.getTargetDirectory());
+			properties.store(Files.newBufferedWriter(settingsFile), "AlbumCreator settings");
+		} catch (IOException e) {
+			LOG.warn("can't write settings file", e);
+		}
+	}
 }

@@ -1,6 +1,7 @@
 package org.zephyrsoft.albumcreator.model;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -23,6 +24,10 @@ public class SourceTableModel implements TableModel {
 	public void clear() {
 		files.clear();
 		listeners.forEach(listener -> listener.tableChanged(new TableModelEvent(this)));
+	}
+	
+	public List<SourceFile> getFiles() {
+		return Collections.unmodifiableList(files);
 	}
 	
 	public SourceFile get(int rowIndex) {
