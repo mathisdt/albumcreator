@@ -388,6 +388,7 @@ public class GUI extends JFrame implements LogTarget {
 					.map(path -> new SourceFile(path))
 					.collect(Collectors.toList());
 			sourceTableModel.addAll(sourceFiles);
+			sourceTable.revalidate();
 			log("found " + sourceFiles.size() + " music files");
 		} catch (IOException e) {
 			log("ERROR: can't read files in \"" + sourcePath + "\"");
