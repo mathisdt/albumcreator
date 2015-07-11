@@ -15,7 +15,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.FileVisitOption;
+import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -23,7 +23,6 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
@@ -371,27 +370,13 @@ public class GUI extends JFrame implements LogTarget {
 		Path sourcePath = Paths.get(sourceDirField.getText());
 		
 		try {
-			List<SourceFile> sourceFiles =
-				Files.find(sourcePath, 1, new MusicFilePredicate(), FileVisitOption.FOLLOW_LINKS)
-					.sorted((path1, path2) -> {
-						int parentComparison = path1.toAbsolutePath().getParent()
-							.compareTo(path2.toAbsolutePath().getParent());
-						if (parentComparison != 0) {
-							// directories are already different
-						return parentComparison;
-					} else {
-						// compare file name case-insensitive
-						return path1.toAbsolutePath().getFileName().toString().toLowerCase()
-							.compareTo(path2.toAbsolutePath().getFileName().toString().toLowerCase());
-					}
-				}	)
-					.map(path -> new SourceFile(path))
-					.collect(Collectors.toList());
+			List<SourceFile> sourceFiles = service.readSourceFiles(sourcePath);
 			sourceTableModel.addAll(sourceFiles);
 			sourceTable.revalidate();
 			log("found " + sourceFiles.size() + " music files");
-		} catch (IOException e) {
+		} catch (IOException | UncheckedIOException e) {
 			log("ERROR: can't read files in \"" + sourcePath + "\"");
+			LOG.error("exception when reading files in \"" + sourcePath + "\"", e);
 		}
 	}
 	

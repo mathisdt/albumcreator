@@ -3,6 +3,7 @@ package org.zephyrsoft.albumcreator;
 import java.io.IOException;
 import java.nio.file.AtomicMoveNotSupportedException;
 import java.nio.file.FileAlreadyExistsException;
+import java.nio.file.FileVisitOption;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -15,6 +16,7 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zephyrsoft.albumcreator.model.Settings;
+import org.zephyrsoft.albumcreator.model.SourceFile;
 import org.zephyrsoft.albumcreator.model.TargetFile;
 
 import com.google.common.base.StandardSystemProperty;
@@ -38,6 +40,26 @@ public class Service {
 	public Service() {
 		numberFormat = NumberFormat.getIntegerInstance();
 		numberFormat.setMinimumIntegerDigits(2);
+	}
+	
+	public List<SourceFile> readSourceFiles(Path sourcePath) throws IOException {
+		List<SourceFile> sourceFiles =
+			Files.find(sourcePath, 1, new MusicFilePredicate(), FileVisitOption.FOLLOW_LINKS)
+				.sorted((path1, path2) -> {
+					int parentComparison = path1.toAbsolutePath().getParent()
+						.compareTo(path2.toAbsolutePath().getParent());
+					if (parentComparison != 0) {
+						// directories are already different
+						return parentComparison;
+					} else {
+						// compare file name case-insensitive
+						return path1.toAbsolutePath().getFileName().toString().toLowerCase()
+							.compareTo(path2.toAbsolutePath().getFileName().toString().toLowerCase());
+					}
+				})
+				.map(path -> new SourceFile(path))
+				.collect(Collectors.toList());
+		return sourceFiles;
 	}
 	
 	public void createScript(Path targetDir, List<TargetFile> targetFiles, LogTarget logTarget) {
