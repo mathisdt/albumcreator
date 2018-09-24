@@ -19,9 +19,9 @@
 	</licenses>
 
 	<scm>
-		<url>https://dev.zephyrsoft.org/svn/projects/albumcreator/trunk/</url>
-		<connection>scm:svn:https://dev.zephyrsoft.org/svn/projects/albumcreator/trunk/</connection>
-		<developerConnection>scm:svn:https://dev.zephyrsoft.org/svn/projects/albumcreator/trunk/</developerConnection>
+		<url>https://github.com/mathisdt/albumcreator</url>
+		<connection>scm:git:ssh:git@github.com:mathisdt/albumcreator.git</connection>
+		<developerConnection>scm:git:ssh:git@github.com:mathisdt/albumcreator.git</developerConnection>
 	</scm>
 
 	<properties>
