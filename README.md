@@ -1,3 +1,5 @@
+![license](https://img.shields.io/github/license/mathisdt/albumcreator.svg?style=flat) [![Travis-CI Build](https://img.shields.io/travis/mathisdt/albumcreator.svg?label=Travis-CI%20Build&style=flat)](https://travis-ci.org/mathisdt/albumcreator/) [![last released](https://img.shields.io/github/release-date/mathisdt/albumcreator.svg?label=last%20released&style=flat)](https://github.com/mathisdt/albumcreator/releases)
+
 # Album Creator
 
 ## What's the purpose?
@@ -27,9 +29,10 @@ directly and click the appropriate button at the bottom.
 If you want to remove a track from the right list, double-click on it, and
 the other tracks will be renumbered accordingly.
 
-## What do I have to provide?
+## Gettings started
 
-* some music files, obviously - currently only MP3 and FLAC are supported
-  but this is easy to change in ``MusicFilePredicate``
-* the Java Runtime Environment (JRE) in version 8 or newer -
-  [get it here](http://java.com/)
+* you'll need some music files, obviously - currently MP3 and FLAC are supported
+* get the [Java Runtime Environment (JRE)](http://java.com/) in version 8 or newer
+* download the [lastest release](https://github.com/mathisdt/albumcreator/releases/latest)
+  and unpack it
+* start it using the script contained in the "bin" directory or with `java -jar albumcreator.jar`
