@@ -23,25 +23,23 @@ import com.google.common.base.StandardSystemProperty;
 
 /**
  * Performs the work.
- * 
- * @author Mathis Dirksen-Thedens
  */
 public class Service {
-	
+
 	private static final Logger LOG = LoggerFactory.getLogger(Service.class);
-	
+
 	private static final String SETTINGS_FILE_NAME = StandardSystemProperty.USER_HOME.value()
 		+ StandardSystemProperty.FILE_SEPARATOR.value() + ".albumcreator";
 	private static final String SOURCE_DIRECTORY_PROPERTY_NAME = "sourceDirectory";
 	private static final String TARGET_DIRECTORY_PROPERTY_NAME = "targetDirectory";
-	
+
 	private final NumberFormat numberFormat;
-	
+
 	public Service() {
 		numberFormat = NumberFormat.getIntegerInstance();
 		numberFormat.setMinimumIntegerDigits(2);
 	}
-	
+
 	public List<SourceFile> readSourceFiles(Path sourcePath) throws IOException {
 		List<SourceFile> sourceFiles =
 			Files.find(sourcePath, 1, new MusicFilePredicate(), FileVisitOption.FOLLOW_LINKS)
@@ -61,7 +59,7 @@ public class Service {
 				.collect(Collectors.toList());
 		return sourceFiles;
 	}
-	
+
 	public void createScript(Path targetDir, List<TargetFile> targetFiles, LogTarget logTarget) {
 		String script = targetFiles.stream()
 			.map(
@@ -70,7 +68,7 @@ public class Service {
 			.collect(Collectors.joining("\n"));
 		logTarget.log("Script:\n==============\n" + script + "\n==============");
 	}
-	
+
 	public boolean moveFiles(Path targetDir, List<TargetFile> targetFiles, LogTarget logTarget) {
 		boolean success = true;
 		for (TargetFile targetFile : targetFiles) {
@@ -109,7 +107,7 @@ public class Service {
 		}
 		return success;
 	}
-	
+
 	public boolean createNewDirectory(Path path, LogTarget logTarget) {
 		try {
 			Files.createDirectories(path);
@@ -123,17 +121,17 @@ public class Service {
 			return false;
 		}
 	}
-	
+
 	private Path absoluteSourcePath(TargetFile targetFile) {
 		return targetFile.getSourceFile().getPath().toAbsolutePath();
 	}
-	
+
 	private Path absoluteTargetPath(Path targetDir, TargetFile targetFile) {
 		Path newFileName = Paths.get(numberFormat.format(targetFile.getTrackNumber()) + " - "
 			+ targetFile.getSourceFile().getPath().getFileName().toString());
 		return targetDir.resolve(newFileName).toAbsolutePath();
 	}
-	
+
 	public Settings loadSettings() {
 		Path settingsFile = Paths.get(SETTINGS_FILE_NAME);
 		Settings ret = new Settings();
@@ -154,7 +152,7 @@ public class Service {
 		}
 		return ret;
 	}
-	
+
 	public void saveSettings(Settings settings) {
 		Path settingsFile = Paths.get(SETTINGS_FILE_NAME);
 		// read properties
