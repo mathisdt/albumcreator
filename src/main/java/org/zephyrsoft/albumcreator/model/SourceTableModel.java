@@ -16,7 +16,7 @@ public class SourceTableModel implements TableModel {
 	private List<SourceFile> files = new ArrayList<>();
 	private List<TableModelListener> listeners = new ArrayList<>();
 
-	public void addAll(List<SourceFile> sourceFiles) {
+	public void addAll(final List<SourceFile> sourceFiles) {
 		files.addAll(sourceFiles);
 		listeners.forEach(listener -> listener.tableChanged(new TableModelEvent(this)));
 	}
@@ -30,7 +30,7 @@ public class SourceTableModel implements TableModel {
 		return Collections.unmodifiableList(files);
 	}
 
-	public SourceFile get(int rowIndex) {
+	public SourceFile get(final int rowIndex) {
 		return files.get(rowIndex);
 	}
 
@@ -45,45 +45,42 @@ public class SourceTableModel implements TableModel {
 	}
 
 	@Override
-	public String getColumnName(int columnIndex) {
+	public String getColumnName(final int columnIndex) {
 		return columns.get(columnIndex);
 	}
 
 	@Override
-	public Class<?> getColumnClass(int columnIndex) {
+	public Class<?> getColumnClass(final int columnIndex) {
 		return String.class;
 	}
 
 	@Override
-	public boolean isCellEditable(int rowIndex, int columnIndex) {
+	public boolean isCellEditable(final int rowIndex, final int columnIndex) {
 		return false;
 	}
 
 	@Override
-	public Object getValueAt(int rowIndex, int columnIndex) {
+	public Object getValueAt(final int rowIndex, final int columnIndex) {
 		SourceFile rowValue = files.get(rowIndex);
-		switch (columnIndex) {
-			case 0:
-				return rowValue.getArtist();
-			case 1:
-				return rowValue.getTitle();
-			default:
-				throw new IllegalArgumentException("illegal column index " + columnIndex);
-		}
+		return switch (columnIndex) {
+			case 0 -> rowValue.getArtist();
+			case 1 -> rowValue.getTitle();
+			default -> throw new IllegalArgumentException("illegal column index " + columnIndex);
+		};
 	}
 
 	@Override
-	public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
+	public void setValueAt(final Object aValue, final int rowIndex, final int columnIndex) {
 		throw new UnsupportedOperationException("use addAll method");
 	}
 
 	@Override
-	public void addTableModelListener(TableModelListener l) {
+	public void addTableModelListener(final TableModelListener l) {
 		listeners.add(l);
 	}
 
 	@Override
-	public void removeTableModelListener(TableModelListener l) {
+	public void removeTableModelListener(final TableModelListener l) {
 		listeners.remove(l);
 	}
 

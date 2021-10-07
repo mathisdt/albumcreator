@@ -40,27 +40,25 @@ public class Service {
 		numberFormat.setMinimumIntegerDigits(2);
 	}
 
-	public List<SourceFile> readSourceFiles(Path sourcePath) throws IOException {
-		List<SourceFile> sourceFiles =
-			Files.find(sourcePath, 1, new MusicFilePredicate(), FileVisitOption.FOLLOW_LINKS)
-				.sorted((path1, path2) -> {
-					int parentComparison = path1.toAbsolutePath().getParent()
-						.compareTo(path2.toAbsolutePath().getParent());
-					if (parentComparison != 0) {
-						// directories are already different
-						return parentComparison;
-					} else {
-						// compare file name case-insensitive
-						return path1.toAbsolutePath().getFileName().toString().toLowerCase()
-							.compareTo(path2.toAbsolutePath().getFileName().toString().toLowerCase());
-					}
-				})
-				.map(path -> new SourceFile(path))
-				.collect(Collectors.toList());
-		return sourceFiles;
+	public List<SourceFile> readSourceFiles(final Path sourcePath) throws IOException {
+		return Files.find(sourcePath, 1, new MusicFilePredicate(), FileVisitOption.FOLLOW_LINKS)
+			.sorted((path1, path2) -> {
+				int parentComparison = path1.toAbsolutePath().getParent()
+					.compareTo(path2.toAbsolutePath().getParent());
+				if (parentComparison != 0) {
+					// directories are already different
+					return parentComparison;
+				} else {
+					// compare file name case-insensitive
+					return path1.toAbsolutePath().getFileName().toString().toLowerCase()
+						.compareTo(path2.toAbsolutePath().getFileName().toString().toLowerCase());
+				}
+			})
+			.map(path -> new SourceFile(path))
+			.toList();
 	}
 
-	public void createScript(Path targetDir, List<TargetFile> targetFiles, LogTarget logTarget) {
+	public void createScript(final Path targetDir, final List<TargetFile> targetFiles, final LogTarget logTarget) {
 		String script = targetFiles.stream()
 			.map(
 				targetFile -> "mv \"" + absoluteSourcePath(targetFile).toString() + "\" \""
@@ -69,7 +67,7 @@ public class Service {
 		logTarget.log("Script:\n==============\n" + script + "\n==============");
 	}
 
-	public boolean moveFiles(Path targetDir, List<TargetFile> targetFiles, LogTarget logTarget) {
+	public boolean moveFiles(final Path targetDir, final List<TargetFile> targetFiles, final LogTarget logTarget) {
 		boolean success = true;
 		for (TargetFile targetFile : targetFiles) {
 			Path absoluteSourcePath = absoluteSourcePath(targetFile);
@@ -108,7 +106,7 @@ public class Service {
 		return success;
 	}
 
-	public boolean createNewDirectory(Path path, LogTarget logTarget) {
+	public boolean createNewDirectory(final Path path, final LogTarget logTarget) {
 		try {
 			Files.createDirectories(path);
 			return true;
@@ -122,11 +120,11 @@ public class Service {
 		}
 	}
 
-	private Path absoluteSourcePath(TargetFile targetFile) {
+	private Path absoluteSourcePath(final TargetFile targetFile) {
 		return targetFile.getSourceFile().getPath().toAbsolutePath();
 	}
 
-	private Path absoluteTargetPath(Path targetDir, TargetFile targetFile) {
+	private Path absoluteTargetPath(final Path targetDir, final TargetFile targetFile) {
 		Path newFileName = Paths.get(numberFormat.format(targetFile.getTrackNumber()) + " - "
 			+ targetFile.getSourceFile().getPath().getFileName().toString());
 		return targetDir.resolve(newFileName).toAbsolutePath();
@@ -153,7 +151,7 @@ public class Service {
 		return ret;
 	}
 
-	public void saveSettings(Settings settings) {
+	public void saveSettings(final Settings settings) {
 		Path settingsFile = Paths.get(SETTINGS_FILE_NAME);
 		// read properties
 		try {

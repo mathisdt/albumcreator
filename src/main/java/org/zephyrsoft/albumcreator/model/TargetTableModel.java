@@ -16,15 +16,16 @@ public class TargetTableModel implements TableModel {
 	private List<TargetFile> files = new ArrayList<>();
 	private List<TableModelListener> listeners = new ArrayList<>();
 
-	public void add(TargetFile targetFile) {
+	public void add(final TargetFile targetFile) {
 		targetFile.setTrackNumber(files.size() + 1);
 		files.add(targetFile);
 		listeners.forEach(listener -> listener.tableChanged(new TableModelEvent(this, files.size() - 1)));
 	}
 
-	public void remove(int rowIndex) {
+	public void remove(final int rowIndex) {
 		files.remove(rowIndex);
-		// if a track was removed from the middle of the list, we have to renumber all tracks
+		// if a track was removed from the middle of the list, we have to renumber all
+		// tracks
 		for (int i = 0; i < files.size(); i++) {
 			files.get(i).setTrackNumber(i + 1);
 		}
@@ -36,7 +37,7 @@ public class TargetTableModel implements TableModel {
 		listeners.forEach(listener -> listener.tableChanged(new TableModelEvent(this)));
 	}
 
-	public TargetFile get(int rowIndex) {
+	public TargetFile get(final int rowIndex) {
 		return files.get(rowIndex);
 	}
 
@@ -55,47 +56,43 @@ public class TargetTableModel implements TableModel {
 	}
 
 	@Override
-	public String getColumnName(int columnIndex) {
+	public String getColumnName(final int columnIndex) {
 		return columns.get(columnIndex);
 	}
 
 	@Override
-	public Class<?> getColumnClass(int columnIndex) {
+	public Class<?> getColumnClass(final int columnIndex) {
 		return String.class;
 	}
 
 	@Override
-	public boolean isCellEditable(int rowIndex, int columnIndex) {
+	public boolean isCellEditable(final int rowIndex, final int columnIndex) {
 		return false;
 	}
 
 	@Override
-	public Object getValueAt(int rowIndex, int columnIndex) {
+	public Object getValueAt(final int rowIndex, final int columnIndex) {
 		TargetFile rowValue = files.get(rowIndex);
-		switch (columnIndex) {
-			case 0:
-				return rowValue.getTrackNumber();
-			case 1:
-				return rowValue.getSourceFile().getArtist();
-			case 2:
-				return rowValue.getSourceFile().getTitle();
-			default:
-				throw new IllegalArgumentException("illegal column index " + columnIndex);
-		}
+		return switch (columnIndex) {
+			case 0 -> rowValue.getTrackNumber();
+			case 1 -> rowValue.getSourceFile().getArtist();
+			case 2 -> rowValue.getSourceFile().getTitle();
+			default -> throw new IllegalArgumentException("illegal column index " + columnIndex);
+		};
 	}
 
 	@Override
-	public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
+	public void setValueAt(final Object aValue, final int rowIndex, final int columnIndex) {
 		throw new UnsupportedOperationException("use add and remove methods");
 	}
 
 	@Override
-	public void addTableModelListener(TableModelListener l) {
+	public void addTableModelListener(final TableModelListener l) {
 		listeners.add(l);
 	}
 
 	@Override
-	public void removeTableModelListener(TableModelListener l) {
+	public void removeTableModelListener(final TableModelListener l) {
 		listeners.remove(l);
 	}
 
