@@ -1,4 +1,4 @@
-![license](https://img.shields.io/github/license/mathisdt/albumcreator.svg?style=flat) [![Travis-CI Build](https://img.shields.io/travis/mathisdt/albumcreator.svg?label=Travis-CI%20Build&style=flat)](https://travis-ci.org/mathisdt/albumcreator/) [![last released](https://img.shields.io/github/release-date/mathisdt/albumcreator.svg?label=last%20released&style=flat)](https://github.com/mathisdt/albumcreator/releases)
+![license](https://img.shields.io/github/license/mathisdt/albumcreator.svg?style=flat) [![Build](https://github.com/mathisdt/albumcreator/actions/workflows/build.yaml/badge.svg)](https://github.com/mathisdt/albumcreator/actions) [![last released](https://img.shields.io/github/release-date/mathisdt/albumcreator.svg?label=last%20released&style=flat)](https://github.com/mathisdt/albumcreator/releases)
 
 # Album Creator
 
