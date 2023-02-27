@@ -10,7 +10,7 @@ directory, and now you want to have individual album directories -
 but the ID3 information was lost? You'll have to do it manually!
 
 Using AlbumCreator, it's easy - just select tracks one after the other,
-and the program will create a scrit for you or move the files at the
+and the program will create a script for you or move the files at the
 click of a button.
 
 Each track will get a prefix with the track number, but retain the file
