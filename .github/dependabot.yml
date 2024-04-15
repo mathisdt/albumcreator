@@ -1,14 +1,19 @@
 version: 2
 updates:
   - package-ecosystem: "maven"
-    open-pull-requests-limit: 10
+    open-pull-requests-limit: 100
     directory: "/"
     schedule:
-      interval: "monthly"
+      interval: "daily"
+      time: "06:00"
+      timezone: "Europe/Berlin"
     allow:
       - dependency-type: "direct"
-    groups:
-      minor-and-patch-version-updates:
-        update-types:
-        - "minor"
-        - "patch"
+    labels:
+      - "dependencies"
+      - "automatic-merge"
+#    groups:
+#      minor-and-patch-version-updates:
+#        update-types:
+#        - "minor"
+#        - "patch"
