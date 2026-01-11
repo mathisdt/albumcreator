@@ -31,7 +31,7 @@ the other tracks will be renumbered accordingly.
 
 * you'll need some music files, obviously - currently MP3 and FLAC are supported
 * get the [Java Runtime Environment (JRE)](http://java.com/) in version 8 or newer
-* download the [lastest release](https://github.com/mathisdt/albumcreator/releases/latest)
+* download the [lastest release](https://codeberg.org/mathisdt/albumcreator/releases/latest)
   and unpack it
 * start it using the script contained in the "bin" directory or with `java -jar albumcreator.jar`
 
